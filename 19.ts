@@ -8,7 +8,7 @@ type Rebuild<A extends any[], I extends any[] = [], C extends any[] = []> = A ex
 	infer F,
 	...infer R,
 ]
-	? I["length"] extends 4
+	? I["length"] extends Gifts['length']
 		? Rebuild<R, [true], [...C, ...Multiply<0, F>]>
 		: Rebuild<R, [...I, true], [...C, ...Multiply<I["length"], F>]>
 	: C;
