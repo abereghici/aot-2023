@@ -72,6 +72,7 @@ type Win<B extends TicTactToeBoard, P extends TicTacToeChip> = [P, P, P] extends
 	| [B[0][0], B[0][1], B[0][2]]
 	| [B[0][1], B[1][1], B[2][1]]
 	| [B[0][2], B[1][2], B[2][2]]
+	| [B[0][0], B[1][1], B[2][2]]
 	? true
 	: false;
 
