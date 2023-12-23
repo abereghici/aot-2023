@@ -29,25 +29,32 @@ type Reindeer = Dasher | Dancer | Prancer | Vixen | Comet | Cupid | Donner | Bli
 
 type ToBoolean<A extends Array<never | Reindeer>> = A[number] extends never ? true : false;
 
-type Verify<A extends any[], Res extends { [K in Reindeer]?: boolean } = {}> = A extends [
+type Verify<A extends Reindeer[], Res extends { [K in Reindeer]?: boolean } = {}> = A extends [
 	infer F extends Reindeer,
-	...infer R,
+	...infer R extends Reindeer[],
 ]
 	? Verify<R, Res & Record<F, true>>
 	: Exclude<Reindeer, keyof Res>;
 
-type VerifyRows<S extends any[][], Res extends any[] = []> = S extends [
-	infer R extends any[],
-	...infer Rest extends any[],
+type VerifyRows<S extends Reindeer[][], Res extends Reindeer[] = []> = S extends [
+	infer R extends Reindeer[],
+	...infer Rest extends Reindeer[][],
 ]
-	? VerifyRows<Rest, [...Res, Verify<[...R[0], ...R[1], ...R[2]]>]>
+	? VerifyRows<Rest, [...Res, Verify<R>]>
 	: ToBoolean<Res>;
 
-type RegionsToRows<S extends any[][], Res extends any[][] = []> = S extends [
-	infer R1 extends any[],
-	infer R2 extends any[],
-	infer R3 extends any[],
-	...infer Rest extends any[],
+type CombineRows<S extends Reindeer[][][], Res extends Reindeer[][] = []> = S extends [
+	infer R extends Reindeer[][],
+	...infer Rest extends Reindeer[][][],
+]
+	? CombineRows<Rest, [...Res, [...R[0], ...R[1], ...R[2]]]>
+	: Res;
+
+type RegionsToRows<S extends Reindeer[][][], Res extends Reindeer[][] = []> = S extends [
+	infer R1 extends Reindeer[][],
+	infer R2 extends Reindeer[][],
+	infer R3 extends Reindeer[][],
+	...infer Rest extends Reindeer[][][],
 ]
 	? RegionsToRows<
 			Rest,
@@ -60,9 +67,9 @@ type RegionsToRows<S extends any[][], Res extends any[][] = []> = S extends [
 		>
 	: Res;
 
-type ColumnsToRows<S extends any[][], Res extends any[][] = []> = S extends [
-	infer R1 extends any[],
-	...infer Rest extends any[],
+type ColumnsToRows<S extends Reindeer[][][], Res extends Reindeer[][][] = []> = S extends [
+	infer R1 extends Reindeer[][][],
+	...infer Rest extends Reindeer[][][],
 ]
 	? ColumnsToRows<
 			Rest,
@@ -80,8 +87,10 @@ type ColumnsToRows<S extends any[][], Res extends any[][] = []> = S extends [
 		>
 	: Res;
 
-type Validate<S extends any[][]> = VerifyRows<S> &
-	VerifyRows<ColumnsToRows<S>> &
-	VerifyRows<RegionsToRows<S>> extends never
+type Validate<S extends Reindeer[][][]> = [
+	VerifyRows<CombineRows<S>>,
+	VerifyRows<ColumnsToRows<S>>,
+	VerifyRows<RegionsToRows<S>>,
+][number] extends true
 	? true
 	: false;
